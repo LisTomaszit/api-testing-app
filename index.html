@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Tester</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+}
+
+.panel {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 8px;
+  flex: 1;
+}
+
+button {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #3b82f6;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#users li {
+  background: #334155;
+  margin-bottom: 5px;
+  padding: 8px;
+}
+
+#log {
+  background: black;
+  height: 200px;
+  overflow: auto;
+  padding: 10px;
+}
+
+.success { color: #22c55e; }
+.error { color: red; }
+</style>
+
+</head>
+
+<body>
+
+<h1>API Tester</h1>
+
+<div class="container">
+
+  <div class="panel">
+    <h3>Akcje</h3>
+    <button id="getUsers">GET Users</button>
+    <button id="addUser">POST User</button>
+    <button id="clear">Clear</button>
+  </div>
+
+  <div class="panel">
+    <h3>Users</h3>
+    <ul id="users"></ul>
+  </div>
+
+  <div class="panel">
+    <h3>Logi</h3>
+    <div id="log"></div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
