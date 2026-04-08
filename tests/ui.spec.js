@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const localHost = " http://127.0.0.1:5500/API-Testing-App/index.html";
+const localHost = "http://127.0.0.1:5500/API-Testing-App/index.html";
 
 test("GET Users button loads users list", async ({ page }) => {
   // intercept API
@@ -16,22 +16,13 @@ test("GET Users button loads users list", async ({ page }) => {
       ]),
     });
   });
-
   await page.goto(localHost);
-
-  // await page.click("#getUsers"); // to po staremu
   await page.getByRole("button", { name: "GET Users" }).click();
-
   // znajduje wszystkie elementy listy
   const users = page.locator("#users li");
   // Czeka az sie pojawi i dopiero zlicza
   await expect(users.first()).toBeVisible();
-  await expect(users).toHaveCount(1); // test z 1 użytkownikiem z fulfill
-
-  // potem sprawdź ilość
-  // 2 linijki kodu dla normalnego testu bez intercept
-  // const count = await users.count();
-  // expect(count).toBeGreaterThan(0);
+  await expect(users).toHaveCount(1);
 });
 
 test("POST button adds log", async ({ page }) => {
@@ -46,47 +37,41 @@ test("POST button adds log", async ({ page }) => {
       await route.continue();
     }
   });
-
   await page.goto(localHost);
-
   await page.getByRole("button", { name: "POST User" }).click();
-
   const logs = page.locator("#log li");
-
   // czeka aż coś się pojawi
   await expect(logs.first()).toBeVisible();
-
   // pobiera tekst pierwszego loga
   // sprawdź czy zawiera "succes i Post"
-
   await expect(logs.first()).toContainText("Post");
   await expect(logs.first()).toContainText("success");
 });
 
 test("Clear button removes users and logs", async ({ page }) => {
+  await page.route("**/users", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([
+        {
+          name: "Tomek",
+          email: "tomek@test.pl",
+        },
+      ]),
+    });
+  });
   await page.goto(localHost);
-
   await page.click("#getUsers");
-
-  // znajduje wyswietlonych userow i liczy ich
+  // Po clicku pobiera testowe dane i sprawdza czy sie wyswietliły
   const users = page.locator("#users li");
   await expect(users.first()).toBeVisible();
-
-  const count = await users.count();
-  expect(count).toBeGreaterThan(0);
-
-  // znajdz logi i je policz
+  // Sprawdza czy pojawił się log
   const logs = page.locator("#log li");
   await expect(logs.first()).toBeVisible();
 
-  const countLogs = await logs.count();
-  expect(countLogs).toBeGreaterThan(0);
-
-  //
   await page.getByRole("button", { name: "Clear" }).click();
-
-  // Klikniecie powinno wyczyscic liste users i logow.
-
+  // Sprawdza czy cos jest wyświetlane
   await expect(users).toHaveCount(0);
   await expect(logs).toHaveCount(0);
 });
@@ -102,21 +87,47 @@ test("GET Users shows error when API fails", async ({ page }) => {
       body: JSON.stringify({ message: "Server error" }),
     });
   });
-
   await page.goto(localHost);
-
   await page.getByRole("button", { name: "GET Users" }).click();
-
   // users NIE powinno być
   const users = page.locator("#users li");
   await expect(users).toHaveCount(0);
-
   // powinien pojawić się log
   const logs = page.locator("#log li");
-
   await expect(logs.first()).toBeVisible();
-
   // sprawdź czy to error
   await expect(logs.last()).toContainText(/error/i);
   // await expect(logs.last()).toHaveText(/error/i); 2 metoda
+});
+
+// testy pominięte. Testowanie realnego API
+test.skip("GET Users button loads users list (REAL API)", async ({ page }) => {
+  await page.goto(localHost);
+
+  // await page.click("#getUsers"); // to po staremu
+  await page.getByRole("button", { name: "GET Users" }).click();
+
+  // znajduje wszystkie elementy listy
+  const users = page.locator("#users li");
+  // Czeka az sie pojawi i dopiero zlicza
+  await expect(users.first()).toBeVisible();
+  const count = await users.count();
+  expect(count).toBeGreaterThan(0);
+});
+
+test.skip("Clear button removes users and logs (REAL API)", async ({
+  page,
+}) => {
+  await page.goto(localHost);
+  // Pobranie danych z API
+  await page.click("#getUsers");
+  const users = page.locator("#users li");
+  await expect(users.first()).toBeVisible();
+  // Sprawdza czy pojawił się log
+  const logs = page.locator("#log li");
+  await expect(logs.first()).toBeVisible();
+  await page.getByRole("button", { name: "Clear" }).click();
+  // Sprawdza czy cos jest wyświetlane
+  await expect(users).toHaveCount(0);
+  await expect(logs).toHaveCount(0);
 });
